@@ -77,7 +77,7 @@ The following executables found installed, which are needed by unblob:
 Now we can extract the firmware with unblob:
 
 ```
-unblob CHARX-SEC-Software-Bundle-V142.raucb
+unblob CHARXSEC3XXXSoftwareBundleV190.raucb
 ```
 
 Extraction takes around 3 minutes on a decent laptop. You should see a progress bar moving up:
@@ -86,7 +86,7 @@ Extraction takes around 3 minutes on a decent laptop. You should see a progress 
 
 
 Once extraction is done, a directory named
-`CHARX-SEC-Software-Bundle-V142.raucb_extract` should be visible. You can head
+`CHARXSEC3XXXSoftwareBundleV190.raucb_extract` should be visible. You can head
 into it and list the content.
 
 ### Chunks, Unknown Chunks
@@ -212,7 +212,7 @@ Let's do a bit of exploration by using a different set of unblob's options:
 
 ```
 unblob -e /tmp/out -f -k -d 3 --report /tmp/report.json \
---log /tmp/unblob.log CHARX-SEC-Software-Bundle-V142.raucb
+--log /tmp/unblob.log CHARXSEC3XXXSoftwareBundleV190.raucb
 ```
 
 Here we keep extracting (`-e`) to `/tmp/out` but we force (`-f`) overwrite
@@ -259,7 +259,7 @@ Ideally, we need to gather these pieces of information:
 4. Bootloader
 <details><summary>spoiler</summary>U-Boot</details>
 5. Operating System version
-<details><summary>spoiler</summary>Linux version 4.14.93</details>
+<details><summary>spoiler</summary>Linux version 5.15.195</details>
 6. Peripherals
 <details><summary>spoiler</summary>2 Ethernet interfaces, 1 CANUSB, 1 USB OTG</details>
 
@@ -395,7 +395,7 @@ that contains the compressed kernel:
 ```
 grep 'Linux version' . -ra 
 ./zImage_extract/7296-6371487.lzo_extract/7296-6371487:
-Linux version 4.14.93 (oe-user@oe-host) (gcc version 8.3.0 (GCC)) #1 SMP PREEMPT
+Linux version 5.15.195 (oe-user@oe-host) (gcc version 8.3.0 (GCC)) #1 SMP PREEMPT
 ./zImage_extract/7296-6371487.lzo_extract/7296-6371487:
 Linux version %s (%s)Bluetooth subsystem version %u.%uHCI socket registration failed
 ```
@@ -403,16 +403,20 @@ Linux version %s (%s)Bluetooth subsystem version %u.%uHCI socket registration fa
 Another way is to look at kernel modules within the EXT4 root filesystem:
 
 ```
-modinfo ./root.ext4_extract/lib/modules/4.14.93/kernel/net/bridge/bridge.ko
-filename:       ./root.ext4_extract/lib/modules/4.14.93/kernel/net/bridge/bridge.ko
-alias:          rtnl-link-bridge
-version:        2.3
+modinfo ./CHARXSEC3XXXSoftwareBundleV190.raucb_extract/0-138014720.squashfs_v4_le_extract/root.ext4_extract/lib/modules/5.15.195/kernel/net/bluetooth/bnep/bnep.ko.xz
+filename:       ./CHARXSEC3XXXSoftwareBundleV190.raucb_extract/0-138014720.squashfs_v4_le_extract/root.ext4_extract/lib/modules/5.15.195/kernel/net/bluetooth/bnep/bnep.ko.xz
+alias:          bt-proto-4
 license:        GPL
-srcversion:     5DED70120EE65F8CE785272
-depends:        stp,llc
+version:        1.3
+description:    Bluetooth BNEP ver 1.3
+author:         Marcel Holtmann <marcel@holtmann.org>
+srcversion:     86266D360814678CE0C94E9
+depends:        
 intree:         Y
-name:           bridge
-vermagic:       4.14.93 SMP preempt modversions ARMv6 p2v8 
+name:           bnep
+vermagic:       5.15.195 preempt mod_unload modversions ARMv7 thumb2 p2v8 
+parm:           compress_src:Compress sources headers (bool)
+parm:           compress_dst:Compress destination headers (bool)
 ```
 
 
@@ -441,7 +445,8 @@ From here, we have a few options:
 
 User space emulation is usually limiting but a great way to investigate, debug,
 and exploit specific binaries. We strongly recommend you have a look at
-[EMUX]() from Saumil Shah for all your userspace emulation needs.
+[EMUX](https://github.com/therealsaumil/emux) from Saumil Shah for all your
+userspace emulation needs.
 
 Regardless, we still need a kernel which will boot within a QEMU machine, which
 matches what the target firmware is expecting, as closely as possible.
@@ -477,7 +482,7 @@ can patch the kernel to ignore this at the kernel level, we still need the
 initial “kernel release” part of the string to match the kernel modules'
 release string, since it’s used as the search path for the modules.dep.
 
-In the Phoenix Contact firmware, the vermagic is `4.14.93 SMP preempt modversions ARMv6 p2v8`.
+In the Phoenix Contact firmware, the vermagic is `5.15.195 preempt mod_unload modversions ARMv7 thumb2 p2v8`.
 
 The vermagic string is in a format like (from `include/linux/vermagic.h`):
 
@@ -494,7 +499,7 @@ The vermagic string is in a format like (from `include/linux/vermagic.h`):
 - PREEMPT = `CONFIG_PREEMPT`
 - mod_unload = `CONFIG_MODULE_UNLOAD`
 - modversions = `CONFIG_MODVERSIONS`
-- ARMv6 p2v8 = `MODULE_ARCH_VERMAGIC` (related to the architecture that the kernel is compiled for, therefore related to the compiler/arch option passed.)
+- ARMv7 thumb2 p2v8 = `MODULE_ARCH_VERMAGIC` (related to the architecture that the kernel is compiled for, therefore related to the compiler/arch option passed.)
 
  Once we have the extracted kernel source, we can patch it so that it’s not so brutal in comparing the vermagic strings. In kernel/module.c, we can just comment out return -ENOEXEC:
 
