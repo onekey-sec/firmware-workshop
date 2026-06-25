@@ -1,3 +1,4 @@
-CHARX-SEC-Software-Bundle-V142.raucb
-CHARX-SEC-Software-Bundle-V142.raucb*
+*.raucb
 unblob.log
+report.json
+*_extract/**
