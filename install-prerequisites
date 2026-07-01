@@ -7,10 +7,13 @@ sudo apt install --no-install-recommends -y \
     can-utils \
     curl \
     jq \
+    e2fsprogs \
     erofs-utils \
     lz4 \
     lziprecover \
     lzop \
+    python3-pip \
+    python3-virtualenv \
     partclone \
     qemu-system \
     unar \
@@ -29,7 +32,7 @@ case "$(dpkg --print-architecture)" in
 esac
 
 curl -L -o 7zip.tar.xz "https://www.7-zip.org/a/7z2600-linux-${sevenzip_arch}.tar.xz"
-install -d /usr/local/bin
+sudo install -d /usr/local/bin
 sudo tar -xf 7zip.tar.xz -C /usr/local/bin 7zz 7zzs
 sudo ln -sf /usr/local/bin/7zz /usr/local/bin/7z
 rm -f 7zip.tar.xz
@@ -38,12 +41,14 @@ curl -L -o sasquatch_1.0.deb "https://github.com/onekey-sec/sasquatch/releases/d
 sudo dpkg -i sasquatch_1.0.deb
 rm -f sasquatch_1.0.deb
 
-curl -L -o libext2fs2_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/libext2fs2_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
-curl -L -o e2fsprogs_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/e2fsprogs_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
-curl -L -o libss2_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/libss2_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
-sudo dpkg -i libext2fs2_1.47.0-3.ok2.deb libss2_1.47.0-3.ok2.deb
-sudo dpkg -i e2fsprogs_1.47.0-3.ok2.deb
-rm -f libext2fs2_1.47.0-3.ok2.deb libss2_1.47.0-3.ok2.deb e2fsprogs_1.47.0-3.ok2.deb
+#curl -L -o libext2fs2_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/libext2fs2_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
+#curl -L -o e2fsprogs_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/e2fsprogs_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
+#curl -L -o libss2_1.47.0-3.ok2.deb "https://github.com/onekey-sec/e2fsprogs/releases/download/v1.47.0-3.ok2/libss2_1.47.0-3.ok2_$(dpkg --print-architecture).deb"
+#sudo dpkg -i libext2fs2_1.47.0-3.ok2.deb libss2_1.47.0-3.ok2.deb
+#sudo dpkg -i e2fsprogs_1.47.0-3.ok2.deb
+#rm -f libext2fs2_1.47.0-3.ok2.deb libss2_1.47.0-3.ok2.deb e2fsprogs_1.47.0-3.ok2.deb
 
-python3 -m pip install --user -U unblob
-python3 -m pip install --user -U plotly
+virtualenv .ve
+. .ve/bin/activate
+python3 -m pip install -U unblob
+python3 -m pip install -U plotly
