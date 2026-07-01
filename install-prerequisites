@@ -9,6 +9,7 @@ sudo apt install --no-install-recommends -y \
     jq \
     e2fsprogs \
     erofs-utils \
+    isc-dhcp-client \
     lz4 \
     lziprecover \
     lzop \
